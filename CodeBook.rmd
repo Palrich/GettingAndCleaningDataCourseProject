@@ -137,7 +137,7 @@ The measuring device used in capturing the measurement.
 The acceleration type detected by the instrument; either NA, body, or gravity.
 
 ###Variable 6: "featureAxis"
-Which axis the measurement was taken.
+Which axis the measurement was taken. Either X, Y, or Z.
 
 ###Variable 7: "featureMagnitude"
 Magnitude of the measurement which was calculated via Euclidean norm (as mentioned in "UCI HAR Dataset/features_info.txt")
