@@ -1,0 +1,157 @@
+---
+title: "CodeBook: Getting and Cleaning Data Course Project"
+author: "Richard Paleczny"
+date: "04/10/16"
+output: rmd
+  html_document: no
+    keep_md: yes
+---
+
+## Project Description
+(As taken from the project desc. on Coursera)
+The purpose of this project is to demonstrate your ability to collect, work with, and clean a data set. The goal is to prepare tidy data that can be used for later analysis. You will be graded by your peers on a series of yes/no questions related to the project. You will be required to submit: 1) a tidy data set as described below, 2) a link to a Github repository with your script for performing the analysis, and 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md. You should also include a README.md in the repo with your scripts. This repo explains how all of the scripts work and how they are connected.
+
+You should create one R script called run_analysis.R that does the following.
+
+1. Merges the training and the test sets to create one data set.
+2. Extracts only the measurements on the mean and standard deviation for each measurement.
+3. Uses descriptive activity names to name the activities in the data set
+4. Appropriately labels the data set with descriptive variable names.
+5. From the data set in step 4, creates a second, independent tidy data set with the average of     each variable for each activity and each subject.
+
+##Study design and data processing
+Study is from the UCI HAR Dataset given in the provided zip file - it measures various experimental accelerometer and gyroscope values taken from a given "Samsung S Galaxy II" smartphone attached to participants' via a belt. Additionally measures values when subjects are standing, sitting, lying down, etc. (as described in UCI HAR Dataset/feature_lablels.txt). In essence, there are separate files in the dataset between two experimental groups, "train", and "test" groups accordingly. For these participants, there is data on various features of the accelerometer and gyroscope measurements in conjunction to the various positions those patients were in during the trial. For the purposes of this project, the folders labeled "Intertial Signals" are ignored. The goal of the project is to take the various .txt data files and create a tidy data set combining the subject ID to the files containing information about "activities performed/positions held"" to the files containing information about various measurements of the accelerometer and gyroscope at those moments. 
+
+###Collection of the raw data
+Study is from the UCI HAR Dataset given in the provided zip file - it measures various experimental accelerometer and gyroscope values taken from a given "Samsung S Galaxy II" smartphone attached to participants' via a belt. Additionally measures values when subjects are standing, sitting, lying down, etc. (as described in UCI HAR Dataset/feature_lablels.txt). In essence, there are separate files in the dataset between two experimental groups, "train", and "test" groups accordingly. For these participants, there is data on various features of the accelerometer and gyroscope measurements in conjunction to the various positions those patients were in during the trial.
+
+###Notes on the original (raw) data 
+For the purposes of this project, the folders labeled "Intertial Signals" are ignored.
+
+##Creating the tidy datafile
+See run_analysis.r and the README in the repo for detailed explanation. The tidy dataset concerning only the mean measurements derived from the larger tidy data depends upon the code in run_analysis.r. 
+
+```{r}
+setkey(mergeTableAllData, personID, activity, featureDomain, featureTool, featureAccelerationType, featureAxis, featureMagnitude, featureJerk, featureMeasurementType)
+
+tableTidy <- mergeTableAllData[, list(avg = mean(value)), by = key(mergeTableAllData)]
+```
+
+
+###Guide to create the tidy data file
+1. Download the zip file for the UCI HAR Dataset. It should be "Dataset.zip" as given in the coursera project description.
+2. Change your working directory to the directory with the folder containing "UCI HAR Dataset". 
+3. Source the script "run_analysis.r" in R. For more information about script details, view the script comments and the README.
+
+###Cleaning of the data
+Basically, the script will set a path to the folder containing the data. Then it will read in the necessary files, merging the data together. Various transformative processes extract only necessary columns and reshape the data to be more consistent with the definition of "tidy data" as given in the course. Regex expressions are used to filter out feature names and apply labels for various aspects of the data. [link to the readme document that describes the code in greater detail]()
+
+##Description of the variables in the tableTidy.txt file
+General description of the file:
+
+ - Dimensions of the dataset
+```{r}
+dim(tableTidy)
+```
+
+```{r}
+## [1] 11880    10
+```
+
+ - Summary of the data
+```{r}
+summary(tableTidy)
+```
+
+```{r}
+##    personID                  activity      featureDomain         featureTool  
+## Min.   : 1.0   LAYING            :1980   Time     :7200   Accelerometer:7200  
+## 1st Qu.: 8.0   SITTING           :1980   Frequency:4680   Gyroscope    :4680  
+## Median :15.5   STANDING          :1980                                        
+## Mean   :15.5   WALKING           :1980                                        
+## 3rd Qu.:23.0   WALKING_DOWNSTAIRS:1980                                        
+## Max.   :30.0   WALKING_UPSTAIRS  :1980                                        
+## featureAccelerationType featureAxis  featureMagnitude featureJerk
+## NA     :4680            NA:3240     NA       :8640    NA  :7200  
+## Body   :5760            X :2880     Magnitude:3240    Jerk:4680  
+## Gravity:1440            Y :2880                                  
+##                         Z :2880                                  
+##                                                                  
+##                                                                  
+## featureMeasurementType      avg          
+## Mean:5940              Min.   :-0.99767  
+## SD  :5940              1st Qu.:-0.96205  
+##                        Median :-0.46989  
+##                        Mean   :-0.48436  
+##                        3rd Qu.:-0.07836  
+##                        Max.   : 0.97451 
+```                        
+
+ - Variables present in the dataset
+```{r}
+names(tableTidy)
+```
+
+```{r}
+## [1] "personID"                "activity"                "featureDomain"          
+## [4] "featureTool"             "featureAccelerationType" "featureAxis"            
+## [7] "featureMagnitude"        "featureJerk"             "featureMeasurementType" 
+##[10] "avg"
+```
+
+### Structure of tidy data
+
+```{r}
+str(tableTidy)
+```
+
+```{r}
+## Classes 'data.table' and 'data.frame':	11880 obs. of  10 variables:
+## $ personID               : int  1 1 1 1 1 1 1 1 1 1 ...
+## $ activity               : Factor w/ 6 levels "LAYING","SITTING",..: 1 1 1 1 1 1 1 1 1 1 ...
+## $featureDomain          : Factor w/ 2 levels "Time","Frequency": 1 1 1 1 1 1 1 1 1 1 ...
+## $ featureTool            : Factor w/ 2 levels "Accelerometer",..: 1 1 1 1 1 1 1 1 1 1 ...
+## $ featureAccelerationType: Factor w/ 3 levels NA,"Body","Gravity": 2 2 2 2 2 2 2 2 2 2 ...
+## $ featureAxis            : Factor w/ 4 levels NA,"X","Y","Z": 1 1 1 1 2 2 2 2 3 3 ...
+## $ featureMagnitude       : Factor w/ 2 levels NA,"Magnitude": 2 2 2 2 1 1 1 1 1 1 ...
+## $ featureJerk            : Factor w/ 2 levels NA,"Jerk": 1 1 2 2 1 1 2 2 1 1 ...
+## $ featureMeasurementType : Factor w/ 2 levels "Mean","SD": 1 2 1 2 1 2 1 2 1 2 ...
+## $ avg                    : num  -0.842 -0.795 -0.954 -0.928 0.222 ...
+## - attr(*, "sorted")= chr  "personID" "activity" "featureDomain" "featureTool" ...
+## - attr(*, ".internal.selfref")=<externalptr> 
+```
+
+###Variable 1: "personID"
+The unique ID number given to unique subjects in the experiment. Subjects were either in the "train" or "test" group.
+
+###Variable 2: "activity"
+The particular pose the measuring device senses the person to be in during the instance of measurement.
+
+###Variable 3: "featureDomain"
+Describes whether the measurement is a function of time or frequency.
+
+###Variable 4: "featureTool"
+The measuring device used in capturing the measurement.
+
+###Variable 5: "featureAccelerationType"
+The acceleration type detected by the instrument; either NA, body, or gravity.
+
+###Variable 6: "featureAxis"
+Which axis the measurement was taken.
+
+###Variable 7: "featureMagnitude"
+Magnitude of the measurement which was calculated via Euclidean norm (as mentioned in "UCI HAR Dataset/features_info.txt")
+
+###Variable 8: "featureJerk"
+Jerk signals given off by the device. My assumption is a subject's quick, erratic, movement.
+
+###Variable 9: "featureMeasurementType"
+Displays whether the value in the column is a mean or standard deviation. 
+
+###Variable 10: "avg"
+The average of the mean values or standard deviation values derived from the experiment's "X_train.txt" and "X_test.txt" files. 
+
+##Sources
+UCI HAR Project details: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+Link for the dataset zip: https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
